@@ -1,0 +1,121 @@
+{
+  "name": "scout-security-toolkit",
+  "version": "0.1.0",
+  "description": "SCOUT — autonomous vulnerability research toolkit. Provides smart contract analysis, web2 recon, and triage tools for AI agents via MCP.",
+  "author": "SCOUT Operator",
+  "license": "MIT",
+  "homepage": "https://github.com/scout-operator/scout-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scout-operator/scout-mcp.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "security",
+    "smart-contract",
+    "audit",
+    "vulnerability-research",
+    "sast",
+    "foundry",
+    "slither",
+    "polymarket"
+  ],
+  "mcpServers": {
+    "scout-security": {
+      "command": "python3",
+      "args": ["${workspaceFolder}/scout/mcp_server.py"],
+      "env": {
+        "SCOUT_MEMORY_DIR": "${userHome}/scout/memory",
+        "SCOUT_ARTIFACT_DIR": "/tmp/scout/sessions",
+        "SCOUT_LOG_LEVEL": "info"
+      },
+      "metadata": {
+        "displayName": "SCOUT Security Toolkit",
+        "icon": "shield",
+        "category": "security",
+        "tools": [
+          {
+            "name": "scout_recon",
+            "description": "Run reconnaissance against a web2 or web3 target. Returns asset inventory and high-value surface list."
+          },
+          {
+            "name": "scout_scan_solidity",
+            "description": "Run static analysis (slither, aderyn, mythril) on a Solidity codebase. Returns findings with severity, location, and PoC skeleton."
+          },
+          {
+            "name": "scout_fuzz",
+            "description": "Run Echidna or Medusa property-based fuzzing against a Foundry project. Returns invariant violations."
+          },
+          {
+            "name": "scout_cast_call",
+            "description": "Read-only on-chain call against an EVM contract. Wraps `cast call` with safety guards (no state-changing methods)."
+          },
+          {
+            "name": "scout_decompile",
+            "description": "Decompile EVM bytecode using heimdall-rs. Returns pseudo-Solidity for analysis."
+          },
+          {
+            "name": "scout_search_findings",
+            "description": "Search local finding store (memory + /tmp/scout) for prior work on a target, function selector, or vuln class."
+          },
+          {
+            "name": "scout_triage",
+            "description": "Apply SCOUT's severity rubric to a raw finding. Returns severity, exploitability, blast radius, and known-issue check."
+          },
+          {
+            "name": "scout_draft_report",
+            "description": "Draft a markdown bug bounty report for a triaged finding. Returns the markdown and saves to artifact dir."
+          }
+        ],
+        "resources": [
+          {
+            "uri": "scout://memory/user",
+            "name": "Operator Profile",
+            "description": "Persistent operator memory: handle, platforms, preferences."
+          },
+          {
+            "uri": "scout://memory/session",
+            "name": "Active Session",
+            "description": "Current target, scope, findings_so_far."
+          },
+          {
+            "uri": "scout://findings/recent",
+            "name": "Recent Findings",
+            "description": "Last 20 findings across all sessions."
+          }
+        ]
+      }
+    }
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true
+  },
+  "requirements": {
+    "python": ">=3.10",
+    "dependencies": [
+      "requests>=2.31.0",
+      "mcp>=1.0.0"
+    ],
+    "external_tools": {
+      "foundry": "Required for cast/forge/anvil",
+      "slither": "Required for Solidity static analysis",
+      "aderyn": "Optional — better than slither for some classes",
+      "echidna": "Optional — for property-based fuzzing",
+      "medusa": "Optional — alternative to echidna"
+    }
+  },
+  "installation": {
+    "vscode_continue": "Add to ~/.continue/config.json mcpServers section",
+    "cline_roo": "Auto-discovered from mcp.json in workspace",
+    "manual": "python3 -m pip install scout-security-toolkit"
+  },
+  "safety": {
+    "scope_discipline": "Read-only by default. No state-changing calls without explicit operator approval.",
+    "no_mainnet_writes": "Server refuses to call any function with state-changing semantics (write, transfer, approve, etc.)",
+    "finding_only": "Server produces reports. Operator submits manually to bug bounty platforms.",
+    "rate_limits": "All HTTP probes throttled to 1 req/sec to avoid triggering rate limits."
+  }
+}
